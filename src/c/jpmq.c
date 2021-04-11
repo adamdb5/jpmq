@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <errno.h>
 
 #include "../../tmp/net_adambruce_jpmq_JPMQ.h"
 
@@ -78,6 +81,20 @@ mqd_t from_universal_mqd_t(jbyteArray unimqdes, JNIEnv *env)
 	return mqdes;
 }
 
+int parse_jpmq_flags(jint oflag)
+{
+	int flags;
+	flags = 0;
+	if(oflag & net_adambruce_jpmq_JPMQ_O_RDONLY)   flags |= O_RDONLY;
+	if(oflag & net_adambruce_jpmq_JPMQ_O_WRONLY)   flags |= O_WRONLY;
+	if(oflag & net_adambruce_jpmq_JPMQ_O_RDWR)     flags |= O_RDWR;
+	if(oflag & net_adambruce_jpmq_JPMQ_O_CLOEXEC)  flags |= O_CLOEXEC;
+	if(oflag & net_adambruce_jpmq_JPMQ_O_CREAT)    flags |= O_CREAT;
+	if(oflag & net_adambruce_jpmq_JPMQ_O_EXCL)     flags |= O_EXCL;
+	if(oflag & net_adambruce_jpmq_JPMQ_O_NONBLOCK) flags |= O_NONBLOCK;
+	return flags;
+}
+
 /**
  * Implementation for the JPMQ::nativeOpen method.
  *
@@ -92,10 +109,11 @@ JNIEXPORT jbyteArray JNICALL Java_net_adambruce_jpmq_JPMQ_nativeOpen
 {
   const char *mq_name;
   mqd_t mqdes;
+  int flags;
 
+  flags = parse_jpmq_flags(oflag);
   mq_name = (*env)->GetStringUTFChars(env, name, NULL);
-  mqdes = mq_open(mq_name, oflag);
-
+  mqdes = mq_open(mq_name, flags);
   return to_universal_mqd_t(mqdes, env);
 }
 
@@ -115,13 +133,12 @@ JNIEXPORT jbyteArray JNICALL Java_net_adambruce_jpmq_JPMQ_nativeOpenWithAttribut
 	const char *mq_name;
 	mqd_t mqdes;
 	struct mq_attr mq_attrs;
-	jclass Jpmq_attr;
-	jfieldID mq_flags_id, mq_maxmsg_id, mq_msgsize_id, mq_curmsgs_id;
+	int flags;
 
+	flags = parse_jpmq_flags(oflag);
 	mq_name = (*env)->GetStringUTFChars(env, name, NULL);
 	parse_jpmq_attr(&mq_attrs, jpmq_attr, env);
-	mqdes = mq_open(mq_name, oflag, mode, &mq_attrs);
-
+	mqdes = mq_open(mq_name, flags, mode, &mq_attrs);
 	return to_universal_mqd_t(mqdes, env);
 }
 

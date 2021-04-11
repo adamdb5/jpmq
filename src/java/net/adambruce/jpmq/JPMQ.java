@@ -14,13 +14,13 @@ public class JPMQ {
 	}
 	
     /* O_ flags - Need to find somewhere better to put these */
-    public static final int O_RDONLY    = 00;
-    public static final int O_WRONLY    = 01;
-    public static final int O_RDWR      = 02;
-    public static final int O_CLOEXEC   = 02000000;
-    public static final int O_CREAT     = 0100;
-    public static final int O_EXCL      = 0200;
-    public static final int O_NONBLOCK  = 04000;
+    public static final int O_RDONLY    = 0b0000001;
+    public static final int O_WRONLY    = 0b0000010;
+    public static final int O_RDWR      = 0b0000100;
+    public static final int O_CLOEXEC   = 0b0001000;
+    public static final int O_CREAT     = 0b0010000;
+    public static final int O_EXCL      = 0b0100000;
+    public static final int O_NONBLOCK  = 0b1000000;
 
     /* Message queue name and descriptor */
     private byte[] descriptor;
