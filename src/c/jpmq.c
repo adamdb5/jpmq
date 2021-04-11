@@ -72,9 +72,16 @@ JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeOpen
 (JNIEnv *env, jobject obj, jstring name, jint oflag)
 {
   const char *mq_name;
+  mqd_t mqdes;
 
   mq_name = (*env)->GetStringUTFChars(env, name, NULL);
-  return mq_open(mq_name, oflag);
+  mqdes = mq_open(mq_name, oflag);
+
+#ifdef __FreeBSD__
+  return mqdes.oshandle;
+#else
+  return mqdes;
+#endif
 }
 
 /**
@@ -90,14 +97,21 @@ JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeOpenWithAttributes
 (JNIEnv *env, jobject obj, jstring name, jint oflag, jint mode,
  jobject jpmq_attr)
 {
-  const char *mq_name;
-  struct mq_attr mq_attrs;
-  jclass Jpmq_attr;
-  jfieldID mq_flags_id, mq_maxmsg_id, mq_msgsize_id, mq_curmsgs_id;
+	const char *mq_name;
+	mqd_t mqdes;
+	struct mq_attr mq_attrs;
+	jclass Jpmq_attr;
+	jfieldID mq_flags_id, mq_maxmsg_id, mq_msgsize_id, mq_curmsgs_id;
 
-  mq_name = (*env)->GetStringUTFChars(env, name, NULL);
-  parse_jpmq_attr(&mq_attrs, jpmq_attr, env);
-  return mq_open(mq_name, oflag, mode, &mq_attrs);
+	mq_name = (*env)->GetStringUTFChars(env, name, NULL);
+	parse_jpmq_attr(&mq_attrs, jpmq_attr, env);
+	mqdes = mq_open(mq_name, oflag, mode, &mq_attrs);
+
+#ifdef __FreeBSD__
+  return mqdes.oshandle;
+#else
+  return mqdes;
+#endif
 }
 
 /**
@@ -111,7 +125,15 @@ JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeOpenWithAttributes
 JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeClose
 (JNIEnv *env, jobject obj, jint mqdes)
 {
-  return mq_close(mqdes);
+	mqd_t nmqdes;
+
+#ifdef __FreeBSD__
+	nmqdes.oshandle = mqdes;
+#else
+	nmqdes = mqdes;
+#endif
+
+	return mq_close(nmqdes);
 }
 
 /**
@@ -143,11 +165,18 @@ JNIEXPORT jobject JNICALL Java_net_adambruce_jpmq_JPMQ_nativeGetAttributes
 (JNIEnv *env, jobject obj, jint mqdes)
 {
   struct mq_attr attr;
+  mqd_t nmqdes;
   jclass jpmq_attr_class;
   jmethodID constructor;
   jobject jpmq_attr_obj;
 
-  mq_getattr(mqdes, &attr);
+#ifdef __FreeBSD__
+  nmqdes.oshandle = mqdes;
+#else
+  nmqdes = mqdes;
+#endif
+
+  mq_getattr(nmqdes, &attr);
   jpmq_attr_class = (*env)->FindClass(env, "JPMQAttributess");
   constructor = (*env)->GetMethodID(env, jpmq_attr_class, "<init>", "(IIII)V");
   jpmq_attr_obj = (*env)->NewObject(env, jpmq_attr_class, constructor,
@@ -171,9 +200,17 @@ JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeSetAttributes
 (JNIEnv *env, jobject obj, jint mqdes, jobject jpmq_attr)
 {
   struct mq_attr attrs;
+  mqd_t nmqdes;
 
   parse_jpmq_attr(&attrs, jpmq_attr, env);
-  return mq_setattr(mqdes, &attrs, NULL);
+
+#ifdef __FreeBSD__
+  nmqdes.oshandle = mqdes;
+#else
+  nmqdes = mqdes;
+#endif
+
+  return mq_setattr(nmqdes, &attrs, NULL);
 }
 
 /**
@@ -188,13 +225,20 @@ JNIEXPORT jstring JNICALL Java_net_adambruce_jpmq_JPMQ_nativeReceive
 (JNIEnv *env, jobject obj, jint mqdes)
 {
   struct mq_attr attr;
+  mqd_t nmqdes;
   char *buf;
   jstring str;
 
-  mq_getattr(mqdes, &attr);
+#ifdef __FreeBSD__
+  nmqdes.oshandle = mqdes;
+#else
+  nmqdes = mqdes;
+#endif
+
+  mq_getattr(nmqdes, &attr);
   buf = (char*)malloc(attr.mq_msgsize + 1);
   memset(buf, '\0', attr.mq_msgsize + 1);
-  mq_receive(mqdes, buf, attr.mq_msgsize + 1, NULL);
+  mq_receive(nmqdes, buf, attr.mq_msgsize + 1, NULL);
   str = (*env)->NewStringUTF(env, buf);
   free(buf);
   return str;
@@ -214,9 +258,16 @@ JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeSend
 (JNIEnv *env, jobject obj, jint mqdes, jstring msg, jint length, jint priority)
 {
   const char *msgbuf;
+  mqd_t nmqdes;
+
+#ifdef __FreeBSD__
+  nmqdes.oshandle = mqdes;
+#else
+  nmqdes = mqdes;
+#endif
 
   msgbuf = (*env)->GetStringUTFChars(env, msg, NULL);
-  return mq_send(mqdes, msgbuf, length, priority);
+  return mq_send(nmqdes, msgbuf, length, priority);
 }
 
 /**
@@ -232,15 +283,22 @@ JNIEXPORT jstring JNICALL Java_net_adambruce_jpmq_JPMQ_nativeTimedReceive
 (JNIEnv *env, jobject obj, jint mqdes, jobject timespec)
 {
   struct mq_attr attr;
+  mqd_t nmqdes;
   struct timespec tspec;
   char *buf;
   jstring str;
 
+#ifdef __FreeBSD__
+  nmqdes.oshandle = mqdes;
+#else
+  nmqdes = mqdes;
+#endif
+
   parse_jpmq_timespec(&tspec, timespec, env);
-  mq_getattr(mqdes, &attr);
+  mq_getattr(nmqdes, &attr);
   buf = (char*)malloc(attr.mq_msgsize + 1);
   memset(buf, '\0', attr.mq_msgsize + 1);
-  mq_timedreceive(mqdes, buf, attr.mq_msgsize + 1, NULL, &tspec);
+  mq_timedreceive(nmqdes, buf, attr.mq_msgsize + 1, NULL, &tspec);
   str = (*env)->NewStringUTF(env, buf);
   free(buf);
   return str;
@@ -261,9 +319,16 @@ JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeTimedSend
  jobject timespec)
 {
   struct timespec tspec;
+  mqd_t nmqdes;
   const char *msgbuf;
+
+#ifdef __FreeBSD__
+  nmqdes.oshandle = mqdes;
+#else
+  nmqdes = mqdes;
+#endif
 
   parse_jpmq_timespec(&tspec, timespec, env);
   msgbuf = (*env)->GetStringUTFChars(env, msg, NULL);
-  return mq_timedsend(mqdes, msgbuf, length, priority, &tspec);
+  return mq_timedsend(nmqdes, msgbuf, length, priority, &tspec);
 }

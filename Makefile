@@ -1,4 +1,4 @@
-JAVA_HOME=/usr/lib/jvm/java-15-openjdk
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk
 
 CC=cc
 CFLAGS=-fPIC -shared -lrt
