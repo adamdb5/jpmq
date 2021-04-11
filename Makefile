@@ -1,22 +1,21 @@
 JAVA_HOME=/usr/lib/jvm/java-15-openjdk
 
-CC=clang
+CC=cc
 CFLAGS=-fPIC -shared -lrt
 INCLUDE=-I"$(JAVA_HOME)/include" -I$(JAVA_HOME)/include/linux
 SOURCES=src/c/jpmq.c
 
 JC=javac
-JNATIVEFLAGS=-h
 JSOURCES=src/java/net/adambruce/jpmq/*.java
 
-all:	jar clib cleantmp
+all:	jar clib rmtmp
 
 directories:
 	mkdir -p tmp
 
-java:	directories
-	$(JC) $(JNATIVEFLAGS) tmp/ $(JSOURCES)
-	$(JC)  -d tmp/ $(JSOURCES)
+java:	directories 
+	$(JC) -h tmp/ $(JSOURCES)
+	$(JC) -d tmp/ $(JSOURCES)
 
 clib:	java
 	$(CC) $(CFLAGS) $(INCLUDE) -o libjpmq.so $(SOURCES)
@@ -24,7 +23,7 @@ clib:	java
 jar:	java
 	jar cf jpmq.jar -C tmp/ net/
 
-cleantmp:	clib
+rmtmp:	clib
 	rm -r tmp/
 	rm src/java/net/adambruce/jpmq/*.class
 
