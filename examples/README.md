@@ -31,8 +31,8 @@ Then, the program should automatically execute using you're default java runtime
 =====================
 Executing the program
 =====================
-Sent: hello
-Received: hello
+Sent: Hello POSIX Message Queues!
+Received: Hello POSIX Message Queues!
 ```
 
 If you see this output then everything is working correctly.
