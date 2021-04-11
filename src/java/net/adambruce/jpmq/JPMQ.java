@@ -1,14 +1,15 @@
 package net.adambruce.jpmq;
 
 /**
- * @file Jmq.java
- * @brief The Jmq class represents a POSIX message queue.
+ * @file JPMQ.java
+ * @brief The JPMQ class represents a POSIX message queue.
  * @author Adam Bruce
- * @date 08 Apr 2021
+ * @date 11 Apr 2021
  */
 
 public class JPMQ {
 
+    /* Load the shared object */
 	static {
 		System.loadLibrary("jpmq");
 	}

@@ -12,8 +12,6 @@
 #include <unistd.h>
 #include <time.h>
 #include <fcntl.h>
-#include <stdio.h>
-#include <errno.h>
 
 #include "../../tmp/net_adambruce_jpmq_JPMQ.h"
 
@@ -62,6 +60,13 @@ void parse_jpmq_timespec(struct timespec *tspec, jobject jpmq_timespec,
   tspec->tv_nsec = (*env)->GetIntField(env, jpmq_timespec, nsec_id);
 }
 
+/**
+ * Converts the platform specific mqd_t type to a fixed length byte array
+ *
+ * @param mqdes native message queue descriptor
+ * @param env pointer to the JNI environment
+ * @returns the byte array representation of the message queue descriptor 
+ */
 jbyteArray to_universal_mqd_t(mqd_t mqdes, JNIEnv *env)
 {
 	jbyte byte_buf[8];
@@ -72,6 +77,13 @@ jbyteArray to_universal_mqd_t(mqd_t mqdes, JNIEnv *env)
 	return byte_arr;
 }
 
+/**
+ * Converts the fixed length descriptor to a native platform specific mqd_t
+ *
+ * @param unimqdes byte array representation of the message queue descriptor
+ * @param env pointer to the JNI environment
+ * @returns the message queue descriptor as a native mqd_t 
+ */
 mqd_t from_universal_mqd_t(jbyteArray unimqdes, JNIEnv *env)
 {
 	jbyte byte_arr[8];
@@ -81,6 +93,13 @@ mqd_t from_universal_mqd_t(jbyteArray unimqdes, JNIEnv *env)
 	return mqdes;
 }
 
+/**
+ * Converts JPMQ oflags into native fcntl flags. This step is necessary as
+ * different operating systems used different oflag values.
+ *
+ * @param oflag the JPMQ oflags
+ * @returns the native flags
+ */
 int parse_jpmq_flags(jint oflag)
 {
 	int flags;

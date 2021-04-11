@@ -1,8 +1,8 @@
 package net.adambruce.jpmq;
 
 /**
- * @file JmqAttributes.java
- * @brief The JmqAttributes class represents the attributes for message queues.
+ * @file JPMQAttributes.java
+ * @brief The JPMQAttributes class represents the attributes for message queues.
  * @author Adam Bruce
  * @date 08 Apr 2021
  */
@@ -14,7 +14,7 @@ public class JPMQAttributes {
     private int currentMessages;
     
     /**
-     * Creates a new JmqAttributes object with the given arguments.
+     * Creates a new JPMQAttributes object with the given arguments.
      * 
      * @param flags the message queue flags
      * @param maxMessages the maximum number of messages in the queue
@@ -22,11 +22,11 @@ public class JPMQAttributes {
      * @param currentMessages the current number of messages in the queue
      */
     public JPMQAttributes(int flags, int maxMessages, int messageSize, 
-    					 int currentMessages) {
+    					  int currentMessages) {
 		this.flags = flags;
 		this.maxMessages = maxMessages;
 		this.messageSize = messageSize;
-		this.currentMessages = currentMessages; /* Needed for JNI */
+		this.currentMessages = currentMessages;
     }
 
     /**

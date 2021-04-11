@@ -1,8 +1,8 @@
 package net.adambruce.jpmq;
 
 /**
- * @file JmqTimespec.java
- * @brief The JmqTimespec class represents the POSIX timespec struct.
+ * @file JPMQTimespec.java
+ * @brief The JPMQTimespec class represents the POSIX timespec struct.
  * @author Adam Bruce
  * @date 08 Apr 2021
  */
@@ -13,7 +13,7 @@ public class JPMQTimespec {
     private int nanoSeconds;
 
     /**
-     * Creates a new JmqTimespec object with the given arguments.
+     * Creates a new JPMQTimespec object with the given arguments.
      * 
      * @param seconds the number of seconds
      * @param nanoseconds the number of nanoseconds
@@ -58,5 +58,4 @@ public class JPMQTimespec {
     public void setNanoSeconds(int nanoseconds) {
     	this.nanoSeconds = nanoseconds;
     }
-    
 }
