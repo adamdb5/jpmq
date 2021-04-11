@@ -23,7 +23,7 @@ public class JPMQ {
     public static final int O_NONBLOCK  = 04000;
 
     /* Message queue name and descriptor */
-    private int descriptor;
+    private byte[] descriptor;
     private String name;
     
     /**
@@ -73,7 +73,7 @@ public class JPMQ {
      * 
      * @return the message queue descriptor
      */
-    public int getDescriptor() {
+    public byte[] getDescriptor() {
     	return descriptor;
     }
 
@@ -153,14 +153,14 @@ public class JPMQ {
     }
      
     /* Native */
-    private native int nativeOpen(String name, int oflag);
-    private native int nativeOpenWithAttributes(String name, int oflag, int mode, JPMQAttributes attr);
-    private native int nativeClose(int descriptor);
+    private native byte[] nativeOpen(String name, int oflag);
+    private native byte[] nativeOpenWithAttributes(String name, int oflag, int mode, JPMQAttributes attr);
+    private native int nativeClose(byte[] descriptor);
     private native int nativeUnlink(String name);
-    private native JPMQAttributes nativeGetAttributes(int descriptor);
-    private native int nativeSetAttributes(int descriptor, JPMQAttributes attr);
-    private native String nativeReceive(int descriptor);
-    private native int nativeSend(int descriptor, String str, int length, int priority);
-    private native String nativeTimedReceive(int descriptor, JPMQTimespec timespec);
-    private native int nativeTimedSend(int descriptor, String str, int length, int priority, JPMQTimespec timespec);
+    private native JPMQAttributes nativeGetAttributes(byte[] descriptor);
+    private native int nativeSetAttributes(byte[] descriptor, JPMQAttributes attr);
+    private native String nativeReceive(byte[] descriptor);
+    private native int nativeSend(byte[] descriptor, String str, int length, int priority);
+    private native String nativeTimedReceive(byte[] descriptor, JPMQTimespec timespec);
+    private native int nativeTimedSend(byte[] descriptor, String str, int length, int priority, JPMQTimespec timespec);
 }

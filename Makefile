@@ -1,5 +1,5 @@
-#JAVA_HOME=/usr/lib/jvm/java-8-openjdk            # Set java home if not already set by OS
-OS_NAME=linux                                     # Set OS e.g. linux, freebsd, netbsd
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk
+OS_NAME=linux
 
 CC=cc
 CFLAGS=-fPIC -shared -lrt
