@@ -1,8 +1,9 @@
-JAVA_HOME=/usr/lib/jvm/java-8-openjdk
+#JAVA_HOME=/usr/lib/jvm/java-8-openjdk            # Set java home if not already set by OS
+OS_NAME=linux                                     # Set OS e.g. linux, freebsd, netbsd
 
 CC=cc
 CFLAGS=-fPIC -shared -lrt
-INCLUDE=-I"$(JAVA_HOME)/include" -I$(JAVA_HOME)/include/linux
+INCLUDE=-I"$(JAVA_HOME)/include" -I$(JAVA_HOME)/include/$(OS_NAME)
 SOURCES=src/c/jpmq.c
 
 JC=javac
