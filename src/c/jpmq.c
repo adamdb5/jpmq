@@ -63,7 +63,7 @@ jbyteArray to_universal_mqd_t(mqd_t mqdes, JNIEnv *env)
 {
 	jbyte byte_buf[8];
 	jbyteArray byte_arr;
-	memcpy(byte_buf + 8 - (sizeof(mqd_t)), &mqdes, sizeof(mqd_t));
+	memcpy(byte_buf, &mqdes, sizeof(mqd_t));
 	byte_arr = (*env)->NewByteArray(env, 8);
 	(*env)->SetByteArrayRegion(env, byte_arr, 0, 8, byte_buf);
 	return byte_arr;
@@ -74,7 +74,7 @@ mqd_t from_universal_mqd_t(jbyteArray unimqdes, JNIEnv *env)
 	jbyte byte_arr[8];
 	mqd_t mqdes;
 	(*env)->GetByteArrayRegion(env, unimqdes, 0, 8, byte_arr);
-	memcpy(&mqdes, byte_arr + 8 - (sizeof(mqd_t)), sizeof(mqd_t));
+	memcpy(&mqdes, byte_arr, sizeof(mqd_t));
 	return mqdes;
 }
 
