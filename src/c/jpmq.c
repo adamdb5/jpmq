@@ -13,7 +13,7 @@
 #include <time.h>
 #include <fcntl.h>
 
-#include "../../tmp/net_adambruce_jpmq_JPMQ.h"
+#include "net_adambruce_jpmq_JPMQ.h"
 
 /**
  * Parses a JPMQAttributes object into a mq_attr struct.
