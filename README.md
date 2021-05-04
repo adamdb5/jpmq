@@ -72,7 +72,7 @@ jpmq/
 
 We can now compile our example program using:
 
-`javac Test.java -classpath ".:jpmq.jar"`
+`javac Example.java -classpath ".:jpmq.jar"`
 
 If you wish to compile from a different directory to the JAR, you will need to change `.:jmpq.jar` to `.:/path/to/jpmq.jar`.
 
