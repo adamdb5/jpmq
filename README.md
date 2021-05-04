@@ -13,7 +13,7 @@ This library uses the Java Native Interface (JNI) and all native code is written
 Due to the vast number of OS / architecture combinations, pre-built JARs and shared object libraries are not distributed. This section will explain how to compile the libraries using CMake.
 
 ### Prerequisites
-- Any JDK and JRE >= 1.7
+- Any JDK and JRE >= 1.8
 - Any C compiler
 - CMake >= 3.0.0
 - Make
