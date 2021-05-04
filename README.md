@@ -1,8 +1,8 @@
-# <p align="center">JPMQ</p>
-<p align="center">
+# JPMQ
+
 [![CMake](https://github.com/adamdb5/jpmq/actions/workflows/cmake.yml/badge.svg)](https://github.com/adamdb5/jpmq/actions/workflows/cmake.yml)
 ![GitHub](https://img.shields.io/github/license/adamdb5/jpmq)
-<p/>
+
 
 ## About JPMQ
 JPMQ is a Java library providing an API for native POSIX message queues.
