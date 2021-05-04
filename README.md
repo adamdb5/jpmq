@@ -74,6 +74,8 @@ We can now compile our example program using:
 
 `javac Test.java -classpath ".:jpmq.jar"`
 
+If you wish to compile from a different directory to the JAR, you will need to change `.:jmpq.jar` to `.:/path/to/jpmq.jar`.
+
 ### Executing the Java program
 
 When executing the program you will need to specify the classpath and the library path to the `libjpmq.so` library. So if we consider our new directory contents:
@@ -91,6 +93,8 @@ We can now execute our example, with the native library using:
 
 `java -Djava.library.path=. -classpath ".:jpmq.jar" Example`
 
+Similarly to compiling, we can specify a different library path and classpath if we are executing from a different directory. For example, you will need to change `.` to `/directory/of/libjpmq.so` and change `.:jpmq.jar` to `.:/path/to/jpmq.jar`.
+
 If the application executes correctly, the following output will be displayed:
 
 
@@ -101,7 +105,7 @@ If the application executes correctly, the following output will be displayed:
 The following list identifies future feeatures of the JPMQ library:
 
 - Add support for `mq_notify`
-- Add ``mode_t`flags
+- Add `mode_t` flags
 - Add exceptions instead of relying on return status
 
 
