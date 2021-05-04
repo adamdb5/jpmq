@@ -1,7 +1,5 @@
 # JPMQ - A Java API for POSIX Message Queues
 
-migration-test
-
 ## Usage
 ```
 	JPMQAttributes attrs = new JPMQAttributes(0, 2, 30, 0);
