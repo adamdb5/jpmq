@@ -1,3 +1,5 @@
+[![CMake](https://github.com/adamdb5/jpmq/actions/workflows/cmake.yml/badge.svg)](https://github.com/adamdb5/jpmq/actions/workflows/cmake.yml)
+
 # JPMQ - A Java API for POSIX Message Queues
 
 ## Usage
