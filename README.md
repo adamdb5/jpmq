@@ -64,7 +64,7 @@ You can compile your Java program just like you would with any other JAR by spec
 
 ```
 jpmq/
-|- build
+|- build/
    |- Example.java
    |- jpmq.jar
    |- libjmpq.so
@@ -82,7 +82,7 @@ When executing the program you will need to specify the classpath and the librar
 
 ```
 jpmq/
-|- build
+|- build/
    |- Example.java
    |- Example.class
    |- jpmq.jar
