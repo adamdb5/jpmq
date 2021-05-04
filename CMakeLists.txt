@@ -15,10 +15,10 @@ add_jar(jpmq-jar
     OUTPUT_NAME jpmq
     )
 
-#include_directories(${JNI_INCLUDE_DIRS})
 add_library(jpmq
     SHARED
     src/c/jpmq.c
     )
+
 target_link_libraries(jpmq rt jpmq-native)
 
