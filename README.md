@@ -19,9 +19,10 @@ Due to the vast number of OS / architecture combinations, pre-built JARs and sha
 - Make
 
 ### Compiling
-Both the JAR and shared object can be created from the CMakeLists.txt file included within the project. The following commands assume you are already in the jpmq directory.
+Both the JAR and shared object can be created from the CMakeLists.txt file included within the project. The following commands will build both the JAR and shared object.
 
 ```
+cd jpmq
 mkdir build
 cd build
 cmake ..
