@@ -13,8 +13,8 @@ This library uses the Java Native Interface (JNI) and all native code is written
 Due to the vast number of OS / architecture combinations, pre-built JARs and shared object libraries are not distributed. This section will explain how to compile the libraries using CMake.
 
 ### Prerequisites
-- Any Java JDK (e.g. Oracle, OpenJDK)
-- Any C compiler (e.g. GCC, Clang)
+- Any JDK and JRE >= 1.8
+- Any C compiler
 - CMake >= 3.0.0
 - Make
 
@@ -64,7 +64,7 @@ You can compile your Java program just like you would with any other JAR by spec
 
 ```
 jpmq/
-|- build
+|- build/
    |- Example.java
    |- jpmq.jar
    |- libjmpq.so
@@ -72,7 +72,7 @@ jpmq/
 
 We can now compile our example program using:
 
-`javac Test.java -classpath ".:jpmq.jar"`
+`javac Example.java -classpath ".:jpmq.jar"`
 
 If you wish to compile from a different directory to the JAR, you will need to change `.:jmpq.jar` to `.:/path/to/jpmq.jar`.
 
@@ -82,7 +82,7 @@ When executing the program you will need to specify the classpath and the librar
 
 ```
 jpmq/
-|- build
+|- build/
    |- Example.java
    |- Example.class
    |- jpmq.jar
