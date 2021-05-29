@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include "net_adambruce_jpmq_JPMQ.h"
 
@@ -133,6 +134,48 @@ JNIEXPORT jbyteArray JNICALL Java_net_adambruce_jpmq_JPMQ_nativeOpen
   flags = parse_jpmq_flags(oflag);
   mq_name = (*env)->GetStringUTFChars(env, name, NULL);
   mqdes = mq_open(mq_name, flags);
+
+  if(mqdes == (mqd_t)-1) {
+      switch (errno) {
+          case EACCES:
+              if (strrchr(mq_name, '/') != mq_name)
+                  (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/AccessException"),
+                                   "The queue name contains more than one / character.");
+              else
+                  (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/AccessException"),
+                                   "The queue exists, but you do not have permission to open it in the specified mode.");
+              break;
+          case EINVAL:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InvalidValueException"),
+                               "Queue name does not follow the required format.");
+              break;
+          case EMFILE:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/DescriptorLimitException"),
+                               "Process message and file descriptor limit reached.");
+              break;
+          case ENAMETOOLONG:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/NameTooLongException"),
+                               "Queue name is too long.");
+              break;
+          case ENFILE:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/DescriptorLimitException"),
+                               "System message and file descriptor limit reached.");
+              break;
+          case ENOENT:
+              if (strlen(mq_name) == 1)
+                  (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InvalidArgumentException"),
+                                   "Queue name is invalid (name was just / followed by no other characters).");
+              else
+                  (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/QueueDoesNotExistException"),
+                                   "No queue with the given name exists.");
+              break;
+          case ENOMEM:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InsufficientMemoryException"),
+                               "Insufficient memory to open queue.");
+              break;
+      }
+  }
+
   return to_universal_mqd_t(mqdes, env);
 }
 
@@ -158,6 +201,53 @@ JNIEXPORT jbyteArray JNICALL Java_net_adambruce_jpmq_JPMQ_nativeOpenWithAttribut
 	mq_name = (*env)->GetStringUTFChars(env, name, NULL);
 	parse_jpmq_attr(&mq_attrs, jpmq_attr, env);
 	mqdes = mq_open(mq_name, flags, mode, &mq_attrs);
+
+	if(mqdes == (mqd_t)-1) {
+        switch (errno) {
+            case EACCES:
+                if (strrchr(mq_name, '/') != mq_name)
+                    (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/AccessException"),
+                                     "The queue name contains more than one / character.");
+                else
+                    (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/AccessException"),
+                                     "The queue exists, but you do not have permission to open it in the specified mode.");
+                break;
+            case EEXIST:
+                (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/QueueExistsException"),
+                                 "A queue with the given name already exists.");
+                break;
+            case EINVAL:
+                (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InvalidValueException"),
+                                 "Queue name does not follow the required format or the given attributes are invalid (see man mq_overview).");
+                break;
+            case EMFILE:
+                (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/DescriptorLimitException"),
+                                 "Process message and file descriptor limit reached.");
+                break;
+            case ENAMETOOLONG:
+                (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/NameTooLongException"),
+                                 "Queue name is too long.");
+                break;
+            case ENFILE:
+                (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/DescriptorLimitException"),
+                                 "System message and file descriptor limit reached.");
+                break;
+            case ENOENT:
+                (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InvalidArgumentException"),
+                                 "Queue name is invalid (name was just / followed by no other characters).");
+
+                break;
+            case ENOMEM:
+                (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InsufficientMemoryException"),
+                                 "Insufficient memory to open queue.");
+                break;
+            case ENOSPC:
+                (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InsufficientSpaceException"),
+                                 "Insufficient space to create queue.");
+                break;
+        }
+    }
+
 	return to_universal_mqd_t(mqdes, env);
 }
 
@@ -169,13 +259,25 @@ JNIEXPORT jbyteArray JNICALL Java_net_adambruce_jpmq_JPMQ_nativeOpenWithAttribut
  * @param mqdes the message queue descriptor
  * @returns the return value of mq_close
  */
-JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeClose
+JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeClose
 (JNIEnv *env, jobject obj, jbyteArray mqdes)
 {
 	mqd_t unimqdes;
+	int status;
 
 	unimqdes = from_universal_mqd_t(mqdes, env);
-	return mq_close(unimqdes);
+	status = mq_close(unimqdes);
+
+    if(status == -1)
+    {
+        switch(errno)
+        {
+            case EBADF:
+                (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/BadDescriptorException"),
+                                 "Invalid message queue descriptor.");
+                break;
+        }
+    }
 }
 
 /**
@@ -186,13 +288,33 @@ JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeClose
  * @param name the name of the message queue
  * @returns the return value of mq_unlink
  */
-JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeUnlink
+JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeUnlink
 (JNIEnv *env, jobject obj, jstring name)
 {
-  const char *mq_name;
+      const char *mq_name;
+      int status;
 
-  mq_name = (*env)->GetStringUTFChars(env, name, NULL);
-  return mq_unlink(mq_name);
+      mq_name = (*env)->GetStringUTFChars(env, name, NULL);
+      status = mq_unlink(mq_name);
+
+      if(status == -1)
+      {
+          switch(errno)
+          {
+              case EACCES:
+                  (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/AccessException"),
+                                   "Process does not have permission to unlink the message queue.");
+                  break;
+              case ENAMETOOLONG:
+                  (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/NameTooLongException"),
+                                   "Queue name is too long.");
+                  break;
+              case ENOENT:
+                  (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/QueueDoesNotExistException"),
+                                   "No queue with the given name exists.");
+                  break;
+          }
+      }
 }
 
 /**
@@ -211,10 +333,23 @@ JNIEXPORT jobject JNICALL Java_net_adambruce_jpmq_JPMQ_nativeGetAttributes
   jclass jpmq_attr_class;
   jmethodID constructor;
   jobject jpmq_attr_obj;
+  int status;
 
   unimqdes = from_universal_mqd_t(mqdes, env);
 
-  mq_getattr(unimqdes, &attr);
+  status = mq_getattr(unimqdes, &attr);
+
+  if(status == -1)
+  {
+    switch(errno)
+    {
+        case EBADF:
+            (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/BadDescriptorException"),
+                             "Invalid message queue descriptor.");
+            break;
+    }
+  }
+
   jpmq_attr_class = (*env)->FindClass(env, "JPMQAttributess");
   constructor = (*env)->GetMethodID(env, jpmq_attr_class, "<init>", "(IIII)V");
   jpmq_attr_obj = (*env)->NewObject(env, jpmq_attr_class, constructor,
@@ -234,16 +369,33 @@ JNIEXPORT jobject JNICALL Java_net_adambruce_jpmq_JPMQ_nativeGetAttributes
  * @param jpmq_attr pointer to the JPMQAttributess object
  * @returns the return value of mq_setattr
  */
-JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeSetAttributes
+JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeSetAttributes
 (JNIEnv *env, jobject obj, jbyteArray mqdes, jobject jpmq_attr)
 {
   struct mq_attr attrs;
   mqd_t unimqdes;
+  int status;
 
   parse_jpmq_attr(&attrs, jpmq_attr, env);
   unimqdes = from_universal_mqd_t(mqdes, env);
 
-  return mq_setattr(unimqdes, &attrs, NULL);
+  status = mq_setattr(unimqdes, &attrs, NULL);
+
+  if(status == -1)
+  {
+      switch(errno)
+      {
+          case EBADF:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/BadDescriptorException"),
+                               "Invalid message queue descriptor.");
+              break;
+          case EINVAL:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InvalidValueException"),
+                               "Flags contained values other than O_NONBLOCK.");
+              break;
+      }
+  }
+
 }
 
 /**
@@ -261,13 +413,40 @@ JNIEXPORT jstring JNICALL Java_net_adambruce_jpmq_JPMQ_nativeReceive
   mqd_t unimqdes;
   char *buf;
   jstring str;
+  int status;
 
   unimqdes = from_universal_mqd_t(mqdes, env);
 
   mq_getattr(unimqdes, &attr);
   buf = (char*)malloc(attr.mq_msgsize + 1);
   memset(buf, '\0', attr.mq_msgsize + 1);
-  mq_receive(unimqdes, buf, attr.mq_msgsize + 1, NULL);
+  status = mq_receive(unimqdes, buf, attr.mq_msgsize + 1, NULL);
+
+  if(status == -1)
+  {
+    free(buf);
+
+    switch(errno)
+    {
+        case EAGAIN:
+            (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/QueueEmptyException"),
+                             "The queue is empty.");
+            break;
+        case EBADF:
+            (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/BadDescriptorException"),
+                             "Invalid message queue descriptor.");
+            break;
+        case EINTR:
+            (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InterruptException"),
+                             "The call was interrupted by a signal handler.");
+            break;
+        case EMSGSIZE:
+            (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/MessageLengthException"),
+                             "Buffer was smaller than message size.");
+            break;
+    }
+  }
+
   str = (*env)->NewStringUTF(env, buf);
   free(buf);
   return str;
@@ -283,16 +462,40 @@ JNIEXPORT jstring JNICALL Java_net_adambruce_jpmq_JPMQ_nativeReceive
  * @param length the length of the message
  * @returns the return value of mq_send
  */
-JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeSend
+JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeSend
 (JNIEnv *env, jobject obj, jbyteArray mqdes, jstring msg, jint length, jint priority)
 {
   const char *msgbuf;
   mqd_t unimqdes;
+  int status;
 
   unimqdes = from_universal_mqd_t(mqdes, env);
 
   msgbuf = (*env)->GetStringUTFChars(env, msg, NULL);
-  return mq_send(unimqdes, msgbuf, length, priority);
+  status = mq_send(unimqdes, msgbuf, length, priority);
+
+  if(status == -1)
+  {
+      switch(errno)
+      {
+          case EAGAIN:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/QueueFullException"),
+                               "The message queue is full.");
+              break;
+          case EBADF:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/BadDescriptorException"),
+                               "Invalid message queue descriptor.");
+              break;
+          case EINTR:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InterruptException"),
+                               "The call was interrupted by a signal handler.");
+              break;
+          case EMSGSIZE:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/MessageLengthException"),
+                               "Provided message is longer than queue message size.");
+              break;
+      }
+  }
 }
 
 /**
@@ -312,6 +515,7 @@ JNIEXPORT jstring JNICALL Java_net_adambruce_jpmq_JPMQ_nativeTimedReceive
   struct timespec tspec;
   char *buf;
   jstring str;
+  int status;
 
   unimqdes = from_universal_mqd_t(mqdes, env);
 
@@ -319,7 +523,41 @@ JNIEXPORT jstring JNICALL Java_net_adambruce_jpmq_JPMQ_nativeTimedReceive
   mq_getattr(unimqdes, &attr);
   buf = (char*)malloc(attr.mq_msgsize + 1);
   memset(buf, '\0', attr.mq_msgsize + 1);
-  mq_timedreceive(unimqdes, buf, attr.mq_msgsize + 1, NULL, &tspec);
+  status = mq_timedreceive(unimqdes, buf, attr.mq_msgsize + 1, NULL, &tspec);
+
+  if(status == -1)
+  {
+      free(buf);
+
+      switch(errno)
+      {
+          case EAGAIN:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/QueueEmptyException"),
+                               "The queue is empty.");
+              break;
+          case EBADF:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/BadDescriptorException"),
+                               "Invalid message queue descriptor.");
+              break;
+          case EINTR:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InterruptException"),
+                               "The call was interrupted by a signal handler.");
+              break;
+          case EINVAL:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InvalidValueException"),
+                               "Invalid timeout.");
+              break;
+          case EMSGSIZE:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/MessageLengthException"),
+                               "Buffer was smaller than message size.");
+              break;
+          case ETIMEDOUT:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/TimeoutException"),
+                               "Call timed out before a message could be transferred.");
+              break;
+      }
+  }
+
   str = (*env)->NewStringUTF(env, buf);
   free(buf);
   return str;
@@ -335,17 +573,49 @@ JNIEXPORT jstring JNICALL Java_net_adambruce_jpmq_JPMQ_nativeTimedReceive
  * @param length the length of the message
  * @returns the return value of mq_timedsend
  */
-JNIEXPORT jint JNICALL Java_net_adambruce_jpmq_JPMQ_nativeTimedSend
+JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeTimedSend
 (JNIEnv *env, jobject obj, jbyteArray mqdes, jstring msg, jint length, jint priority,
  jobject timespec)
 {
   struct timespec tspec;
   mqd_t unimqdes;
   const char *msgbuf;
+  int status;
 
   unimqdes = from_universal_mqd_t(mqdes, env);
 
   parse_jpmq_timespec(&tspec, timespec, env);
   msgbuf = (*env)->GetStringUTFChars(env, msg, NULL);
-  return mq_timedsend(unimqdes, msgbuf, length, priority, &tspec);
+  status = mq_timedsend(unimqdes, msgbuf, length, priority, &tspec);
+
+  if(status == -1)
+  {
+      switch(errno)
+      {
+          case EAGAIN:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/QueueFullException"),
+                               "The message queue is full.");
+              break;
+          case EBADF:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/BadDescriptorException"),
+                               "Invalid message queue descriptor.");
+              break;
+          case EINTR:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InterruptException"),
+                               "The call was interrupted by a signal handler.");
+              break;
+          case EINVAL:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/InvalidValueException"),
+                               "Invalid timeout.");
+              break;
+          case EMSGSIZE:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/MessageLengthException"),
+                               "Provided message is longer than queue message size.");
+              break;
+          case ETIMEDOUT:
+              (*env)->ThrowNew(env, (*env)->FindClass(env, "net/adambruce/jpmq/TimeoutException"),
+                               "Call timed out before a message could be transferred.");
+              break;
+      }
+  }
 }

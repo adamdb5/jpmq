@@ -1,5 +1,6 @@
 package net.adambruce.jpmq;
 
+
 /**
  * @file JPMQ.java
  * @brief The JPMQ class represents a POSIX message queue.
@@ -14,7 +15,7 @@ public class JPMQ {
 		System.loadLibrary("jpmq");
 	}
 	
-    /* O_ flags - Need to find somewhere better to put these */
+    /* O_ flags */
     public static final int O_RDONLY    = 0b0000001;
     public static final int O_WRONLY    = 0b0000010;
     public static final int O_RDWR      = 0b0000100;
@@ -33,9 +34,16 @@ public class JPMQ {
      * @param name the name of the message queue
      * @param oflag the open flags (O_)
      */
-    public JPMQ(String name, int oflags) {
-		descriptor = nativeOpen(name, oflags);
-		this.name = name;
+    public JPMQ(String name, int oflags) throws
+        AccessException, InvalidValueException, DescriptorLimitException,
+        NameTooLongException, QueueDoesNotExistException, InsufficientMemoryException {
+
+        try {
+            descriptor = nativeOpen(name, oflags);
+            this.name = name;
+		} catch (Exception e) {
+		    throw e;
+		}
     }
     
     /**
@@ -46,9 +54,16 @@ public class JPMQ {
      * @param mode the file mode
      * @param attr the message queue attributes
      */
-    public JPMQ(String name, int oflags, int mode, JPMQAttributes attributes) {
-		descriptor = nativeOpenWithAttributes(name, oflags, mode, attributes);
-		this.name = name;
+    public JPMQ(String name, int oflags, int mode, JPMQAttributes attributes) throws
+        AccessException, QueueExistsException, InvalidValueException, DescriptorLimitException,
+        NameTooLongException, InsufficientMemoryException, InsufficientSpaceException {
+
+		try {
+            descriptor = nativeOpenWithAttributes(name, oflags, mode, attributes);
+            this.name = name;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /**
@@ -56,8 +71,12 @@ public class JPMQ {
      * 
      * @return the output of mq_close
      */
-    public int close() {
-    	return nativeClose(descriptor);
+    public void close() throws BadDescriptorException {
+    	try {
+    	    nativeClose(descriptor);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /**
@@ -65,8 +84,14 @@ public class JPMQ {
      * 
      * @return the output of mq_unlink
      */
-    public int unlink() {
-    	return nativeUnlink(name);
+    public void unlink() throws AccessException, NameTooLongException,
+        QueueDoesNotExistException {
+
+        try {
+    	    nativeUnlink(name);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /**
@@ -92,8 +117,12 @@ public class JPMQ {
      * 
      * @return the attributes of the message queue
      */
-    public JPMQAttributes getAttributes() {
-    	return nativeGetAttributes(descriptor);
+    public JPMQAttributes getAttributes() throws BadDescriptorException {
+    	try {
+    	    return nativeGetAttributes(descriptor);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /**
@@ -104,8 +133,14 @@ public class JPMQ {
      * @param attr the new attributes
      * @return the output of mq_setattr
      */
-    public int setAttributes(JPMQAttributes attributes) {
-    	return nativeSetAttributes(descriptor, attributes);
+    public void setAttributes(JPMQAttributes attributes) throws BadDescriptorException,
+        InvalidValueException {
+
+        try {
+    	    nativeSetAttributes(descriptor, attributes);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /**
@@ -113,8 +148,15 @@ public class JPMQ {
      * 
      * @return the message received
      */
-    public String receive() {
-    	return nativeReceive(descriptor);
+    public String receive() throws
+        QueueEmptyException, BadDescriptorException, InterruptException,
+        MessageLengthException {
+
+        try {
+    	    return nativeReceive(descriptor);
+    	} catch (Exception e) {
+    	    throw e;
+    	}
     }
 
     /**
@@ -124,8 +166,15 @@ public class JPMQ {
      * @param priority the priority of the message
      * @return the output of mq_send
      */
-    public int send(String message, int priority) {
-    	return nativeSend(descriptor, message, message.length(), priority);
+    public void send(String message, int priority) throws
+        QueueFullException, BadDescriptorException, InterruptException, InvalidValueException,
+        MessageLengthException {
+
+        try {
+    	    nativeSend(descriptor, message, message.length(), priority);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /**
@@ -136,8 +185,15 @@ public class JPMQ {
      * @param timespec the timeout for receiving a message
      * @return the message received
      */
-    public String timedReceive(JPMQTimespec timespec) {
-    	return nativeTimedReceive(descriptor, timespec);
+    public String timedReceive(JPMQTimespec timespec) throws
+        QueueFullException, BadDescriptorException, InterruptException, InvalidValueException,
+        MessageLengthException, TimeoutException {
+
+    	try {
+    	    return nativeTimedReceive(descriptor, timespec);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /**
@@ -149,19 +205,51 @@ public class JPMQ {
      * @param timespec the timeout for sending the message
      * @return the output of mq_timedsend
      */
-    public int timedSend(String str, int priority, JPMQTimespec timespec) {
-    	return nativeTimedSend(descriptor, str, str.length(), priority, timespec);
+    public void timedSend(String str, int priority, JPMQTimespec timespec) throws
+        QueueEmptyException, BadDescriptorException, InterruptException, InvalidValueException,
+        MessageLengthException, TimeoutException {
+
+        try {
+    	    nativeTimedSend(descriptor, str, str.length(), priority, timespec);
+        } catch (Exception e) {
+        throw e;
+        }
     }
      
     /* Native */
-    private native byte[] nativeOpen(String name, int oflag);
-    private native byte[] nativeOpenWithAttributes(String name, int oflag, int mode, JPMQAttributes attr);
-    private native int nativeClose(byte[] descriptor);
-    private native int nativeUnlink(String name);
-    private native JPMQAttributes nativeGetAttributes(byte[] descriptor);
-    private native int nativeSetAttributes(byte[] descriptor, JPMQAttributes attr);
-    private native String nativeReceive(byte[] descriptor);
-    private native int nativeSend(byte[] descriptor, String str, int length, int priority);
-    private native String nativeTimedReceive(byte[] descriptor, JPMQTimespec timespec);
-    private native int nativeTimedSend(byte[] descriptor, String str, int length, int priority, JPMQTimespec timespec);
+    private native byte[] nativeOpen(String name, int oflag) throws
+        AccessException, InvalidValueException, DescriptorLimitException,
+        NameTooLongException, QueueDoesNotExistException, InsufficientMemoryException;
+
+    private native byte[] nativeOpenWithAttributes(String name, int oflag, int mode, JPMQAttributes attr) throws
+        AccessException, QueueExistsException, InvalidValueException, DescriptorLimitException,
+        NameTooLongException, InsufficientMemoryException, InsufficientSpaceException;
+
+    private native void nativeClose(byte[] descriptor) throws BadDescriptorException;
+
+    private native void nativeUnlink(String name) throws AccessException, NameTooLongException,
+        QueueDoesNotExistException;
+
+    private native JPMQAttributes nativeGetAttributes(byte[] descriptor) throws BadDescriptorException;
+
+    private native void nativeSetAttributes(byte[] descriptor, JPMQAttributes attr) throws
+        BadDescriptorException, InvalidValueException;
+
+    private native String nativeReceive(byte[] descriptor) throws
+        QueueEmptyException, BadDescriptorException, InterruptException,
+        MessageLengthException;
+
+    private native void nativeSend(byte[] descriptor, String str, int length, int priority) throws
+        QueueFullException, BadDescriptorException, InterruptException,
+        MessageLengthException;
+
+
+    private native String nativeTimedReceive(byte[] descriptor, JPMQTimespec timespec) throws
+        QueueFullException, BadDescriptorException, InterruptException, InvalidValueException,
+        MessageLengthException, TimeoutException;
+
+
+    private native void nativeTimedSend(byte[] descriptor, String str, int length, int priority, JPMQTimespec timespec) throws
+        QueueEmptyException, BadDescriptorException, InterruptException, InvalidValueException,
+        MessageLengthException, TimeoutException;
 }

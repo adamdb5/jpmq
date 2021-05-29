@@ -3,6 +3,8 @@
 [![CMake](https://github.com/adamdb5/jpmq/actions/workflows/cmake.yml/badge.svg)](https://github.com/adamdb5/jpmq/actions/workflows/cmake.yml)
 ![GitHub](https://img.shields.io/github/license/adamdb5/jpmq)
 
+## Now with Exceptions!
+Because everybody loves try-catch blocks everywhere in their code.
 
 ## About JPMQ
 JPMQ is a Java library providing an API for native POSIX message queues.

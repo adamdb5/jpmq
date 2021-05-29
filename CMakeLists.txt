@@ -7,10 +7,9 @@ find_package(JNI REQUIRED)
 find_package(Java REQUIRED)
 include(UseJava)
 
+FILE(GLOB java_sources src/java/net/adambruce/jpmq/*.java)
 add_jar(jpmq-jar
-    src/java/net/adambruce/jpmq/JPMQ.java
-    src/java/net/adambruce/jpmq/JPMQAttributes.java
-    src/java/net/adambruce/jpmq/JPMQTimespec.java
+    ${java_sources}
     GENERATE_NATIVE_HEADERS jpmq-native
     OUTPUT_NAME jpmq
     )
