@@ -3,6 +3,8 @@
 [![CMake](https://github.com/adamdb5/jpmq/actions/workflows/cmake.yml/badge.svg)](https://github.com/adamdb5/jpmq/actions/workflows/cmake.yml)
 ![GitHub](https://img.shields.io/github/license/adamdb5/jpmq)
 
+Tested on Linux and FreeBSD.
+
 ## Now with Exceptions!
 Because everybody loves try-catch blocks everywhere in their code.
 
@@ -113,8 +115,6 @@ The following list identifies future feeatures of the JPMQ library:
 
 - Add support for `mq_notify`
 - Add `mode_t` flags
-- Add exceptions instead of relying on return status
-
 
 ## License
 JPMQ is licensed under the MIT license, so you can do whatever you want with it.
