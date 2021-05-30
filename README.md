@@ -51,14 +51,19 @@ Example.java:
 import net.adambruce.jpmq.*;
 
 public class Example {
-	public static void main(String[] args) {
-		JPMQAttributes attrs = new JPMQAttributes(0, 2, 30, 0);
-		JPMQ myQueue = new JPMQ("/myQueue", JPMQ.O_CREAT | JPMQ.O_RDWR, 0644, attrs);
-		myQueue.send("Hello POSIX Message Queues!", 0);
-		System.out.println("Received: " + myQueue.receive());			      
-		myQueue.unlink();
-	}
+        public static void main(String[] args) {
+                try {
+                        JPMQAttributes attrs = new JPMQAttributes(0, 2, 30, 0);
+                        JPMQ myQueue = new JPMQ("/myQue/ue", JPMQ.O_CREAT | JPMQ.O_RDWR, 0644, attrs);
+                        myQueue.send("Hello POSIX Message Queues!", 0);
+                        System.out.println("Received: " + myQueue.receive());                         
+                        myQueue.unlink();
+                } catch (Exception e) {
+                        e.printStackTrace(System.out);
+                }
+        }
 }
+
 ```
 
 ### Compiling the Java program
