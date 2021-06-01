@@ -257,7 +257,6 @@ JNIEXPORT jbyteArray JNICALL Java_net_adambruce_jpmq_JPMQ_nativeOpenWithAttribut
  * @param env pointer to the JNI environment
  * @param obj pointer to the JPMQ object
  * @param mqdes the message queue descriptor
- * @returns the return value of mq_close
  */
 JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeClose
 (JNIEnv *env, jobject obj, jbyteArray mqdes)
@@ -286,7 +285,6 @@ JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeClose
  * @param env pointer to the JNI environment
  * @param obj pointer to the JPMQ object
  * @param name the name of the message queue
- * @returns the return value of mq_unlink
  */
 JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeUnlink
 (JNIEnv *env, jobject obj, jstring name)
@@ -367,7 +365,6 @@ JNIEXPORT jobject JNICALL Java_net_adambruce_jpmq_JPMQ_nativeGetAttributes
  * @param obj pointer to the JPMQ object
  * @param mqdes the message queue descriptor
  * @param jpmq_attr pointer to the JPMQAttributess object
- * @returns the return value of mq_setattr
  */
 JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeSetAttributes
 (JNIEnv *env, jobject obj, jbyteArray mqdes, jobject jpmq_attr)
@@ -459,8 +456,7 @@ JNIEXPORT jstring JNICALL Java_net_adambruce_jpmq_JPMQ_nativeReceive
  * @param obj pointer to the JPMQ object
  * @param mqdes the message queue descriptor
  * @param msg the String to send
- * @param length the length of the message
- * @returns the return value of mq_send
+ * @param length the length of the messaged
  */
 JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeSend
 (JNIEnv *env, jobject obj, jbyteArray mqdes, jstring msg, jint length, jint priority)
@@ -571,7 +567,6 @@ JNIEXPORT jstring JNICALL Java_net_adambruce_jpmq_JPMQ_nativeTimedReceive
  * @param mqdes the message queue descriptor
  * @param msg the String to send
  * @param length the length of the message
- * @returns the return value of mq_timedsend
  */
 JNIEXPORT void JNICALL Java_net_adambruce_jpmq_JPMQ_nativeTimedSend
 (JNIEnv *env, jobject obj, jbyteArray mqdes, jstring msg, jint length, jint priority,

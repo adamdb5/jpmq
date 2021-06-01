@@ -1,16 +1,20 @@
 package net.adambruce.jpmq;
 
 /**
- * @file JPMQAttributes.java
- * @brief The JPMQAttributes class represents the attributes for message queues.
+ * JPMQAttributes represents the POSIX mq_attr struct.
+ *
+ * @since 1.0
  * @author Adam Bruce
- * @date 08 Apr 2021
  */
-
 public class JPMQAttributes {
+
+    /** Holds the O_FLAGS provided in the JPMQ class */
     private int flags;
+    /** The maximum number of messages in the queue */
     private int maxMessages;
+    /** The size of messages in the queue */
     private int messageSize;
+    /** The current number of messages in the queue */
     private int currentMessages;
     
     /**
