@@ -5,13 +5,10 @@
 
 Tested on Linux and FreeBSD.
 
-## Now with Exceptions!
-Because everybody loves try-catch blocks everywhere in their code.
-
 ## About JPMQ
 JPMQ is a Java library providing an API for native POSIX message queues.
 
-This library uses the Java Native Interface (JNI) and all native code is written in ANSI C.
+This library uses the Java Native Interface (JNI) and all native code is written in POSIX.1-2001 compliant ANSI C.
 
 ## Getting Started
 Due to the vast number of OS / architecture combinations, pre-built JARs and shared object libraries are not distributed. This section will explain how to compile the libraries using CMake.
@@ -33,7 +30,7 @@ cmake ..
 make
 ```
 
-This will generate `jpmq.jar` and `libjmpq.so`.
+This will generate `jpmq-1.0.jar` and `libjmpq.so`.
 
 ## Usage
 
@@ -68,39 +65,39 @@ public class Example {
 
 ```
 
-### Compiling the Java program
+### Compiling a Java program
 You can compile your Java program just like you would with any other JAR by specifiying the classpath argument. If we created the previous Example.java program in the new `build` directory we will have the following directory contents:
 
 ```
 jpmq/
 |- build/
    |- Example.java
-   |- jpmq.jar
+   |- jpmq-1.0.jar
    |- libjmpq.so
 ```
 
 We can now compile our example program using:
 
-`javac Example.java -classpath ".:jpmq.jar"`
+`javac Example.java -classpath ".:jpmq-1.0.jar"`
 
-If you wish to compile from a different directory to the JAR, you will need to change `.:jmpq.jar` to `.:/path/to/jpmq.jar`.
+If you wish to compile from a different directory to the JAR, you will need to change `.:jmpq-1.0.jar` to `.:/path/to/jpmq-1.0.jar`.
 
-### Executing the Java program
+### Executing a Java program
 
-When executing the program you will need to specify the classpath and the library path to the `libjpmq.so` library. So if we consider our new directory contents:
+When executing a Java program you will need to specify the classpath and the library path to the `libjpmq.so` library. So if we consider our new directory contents:
 
 ```
 jpmq/
 |- build/
    |- Example.java
    |- Example.class
-   |- jpmq.jar
+   |- jpmq-1.0.jar
    |- libjmpq.so
 ```
 
 We can now execute our example, with the native library using:
 
-`java -Djava.library.path=. -classpath ".:jpmq.jar" Example`
+`java -Djava.library.path=. -classpath ".:jpmq-1.0.jar" Example`
 
 Similarly to compiling, we can specify a different library path and classpath if we are executing from a different directory. For example, you will need to change `.` to `/directory/of/libjpmq.so` and change `.:jpmq.jar` to `.:/path/to/jpmq.jar`.
 
@@ -117,4 +114,4 @@ The following list identifies future feeatures of the JPMQ library:
 - Add `mode_t` flags
 
 ## License
-JPMQ is licensed under the MIT license, so you can do whatever you want with it.
+JPMQ is licensed under the MIT license.
