@@ -35,7 +35,7 @@ This will generate `jpmq-1.0.jar` and `libjmpq.so`.
 ## Usage
 
 ### Using the library
-Online javadocs are available [here](https://adambruce.net/jpmq/docs).
+Online javadocs are available [here](https://jpmq.adambruce.net/docs).
 
 JPMQ is stored within the package `net.adambruce.jpmq` and can be imported using `import net.adambruce.jpmq.*;`
 
