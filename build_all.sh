@@ -5,8 +5,12 @@ mkdir build
 cd build
 
 echo "Building for $OS"
-if [ $OS == "GNU/Linux" ]; then
+if [ "$OS" = "GNU/Linux" ]; then
 	OS="linux"
+	AARCH64_COMPILER="aarch64-linux-gnu-gcc"
+elif [ "$OS" = "FreeBSD" ]; then
+	OS="freebsd"
+	AARCH64_COMPILER="aarch64-unknown-freebsd13.0-gcc"
 fi
 
 ARCH="x86_64"
@@ -27,7 +31,8 @@ make
 cd ..
 ARCH="aarch64"
 NAME="jpmq-$VERSION-$ARCH-$OS"
+
 mkdir $NAME
 cd $NAME
-cmake ../.. -D CMAKE_C_COMPILER=aarch64-linux-gnu-gcc
+cmake ../.. -D CMAKE_C_COMPILER=$AARCH64_COMPILER
 make
