@@ -3,23 +3,23 @@
 [![CMake](https://github.com/adamdb5/jpmq/actions/workflows/cmake.yml/badge.svg)](https://github.com/adamdb5/jpmq/actions/workflows/cmake.yml)
 ![GitHub](https://img.shields.io/github/license/adamdb5/jpmq)
 
-Tested on Linux and FreeBSD.
-
 ## About JPMQ
 JPMQ is a Java library providing an API for native POSIX message queues.
 
 This library uses the Java Native Interface (JNI) and all native code is written in POSIX.1-2001 compliant ANSI C.
 
-## Getting Started
-Due to the vast number of OS / architecture combinations, pre-built JARs and shared object libraries are not distributed. This section will explain how to compile the libraries using CMake.
+## Downloading Prebuilt Binaries
+Prebuild binaries and shared objects are provided for common Linux and FreeBSD architectures, however instructions are also provided below for compiling.
 
-### Prerequisites
+These are available under releases.
+
+## Compiling
+Prerequisites:
 - Any JDK and JRE >= 1.8
 - Any C compiler
 - CMake >= 3.0.0
 - Make
 
-### Compiling
 Both the JAR and shared object can be created from the CMakeLists.txt file included within the project. The following commands will build both the JAR and shared object.
 
 ```
