@@ -77,7 +77,7 @@ jpmq/
 |- build/
    |- Example.java
    |- jpmq-1.0.jar
-   |- libjmpq.so
+   |- libjpmq.so
 ```
 
 We can now compile our example program using:
@@ -96,7 +96,7 @@ jpmq/
    |- Example.java
    |- Example.class
    |- jpmq-1.0.jar
-   |- libjmpq.so
+   |- libjpmq.so
 ```
 
 We can now execute our example, with the native library using:
@@ -113,9 +113,6 @@ If the application executes correctly, the following output will be displayed:
 
 ## Roadmap
 The following list identifies future feeatures of the JPMQ library:
-
-- Add support for `mq_notify`
-- Add `mode_t` flags
 
 ## License
 JPMQ is licensed under the MIT license.
