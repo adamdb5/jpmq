@@ -110,9 +110,5 @@ If the application executes correctly, the following output will be displayed:
 
 `Received: Hello POSIX Message Queues!`
 
-
-## Roadmap
-The following list identifies future feeatures of the JPMQ library:
-
 ## License
 JPMQ is licensed under the MIT license.
